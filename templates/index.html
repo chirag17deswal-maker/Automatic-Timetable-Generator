@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimelyAI | AI College Timetable Generator & Faculty Scheduler</title>
+    <meta name="description" content="Generate 100% conflict-free college timetables and individual faculty schedules using Google OR-Tools constraint satisfaction. Multi-period labs, shared branch lectures, and instant Excel & PDF export.">
+    <meta name="author" content="{{ author_name }}">
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:title" content="TimelyAI - College Timetable & Faculty Schedule System">
+    <meta property="og:description" content="Generate conflict-free academic timetables in seconds using Google OR-Tools. Automatic multi-period lab allocation, workload balancing, and multi-sheet Excel export.">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ canonical_url }}">
+    <meta name="twitter:title" content="TimelyAI - College Timetable & Faculty Schedule System">
+    <meta name="twitter:description" content="Conflict-free college timetables and faculty workload optimization. Multi-period labs, combined branches, Excel & PDF export.">
+
+    {% if google_site_verification %}
+    <!-- Google Search Console Verification -->
+    <meta name="google-site-verification" content="{{ google_site_verification }}">
+    {% endif %}
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "TimelyAI Timetable Generator",
+      "url": "{{ site_url }}",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "All",
+      "author": {
+        "@type": "Person",
+        "name": "{{ author_name }}",
+        "email": "{{ contact_email }}"
+      },
+      "description": "Professional college timetable and faculty schedule generator powered by Google OR-Tools constraint optimization."
+    }
+    </script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <header>
+        <nav class="navbar" aria-label="Main Navigation">
+            <div class="logo-group">
+                <a href="{{ url_for('index') }}" class="logo">
+                    <span class="logo-icon" aria-hidden="true">📅</span>
+                    <span>Timely<span style="color: var(--primary);">AI</span></span>
+                </a>
+                <span class="nav-tagline">Academic Scheduler</span>
+            </div>
+
+            <button type="button" class="mobile-nav-toggle" id="mobileNavToggle" aria-expanded="false" aria-label="Toggle navigation menu" aria-controls="primaryNavLinks">
+                <span class="nav-icon-bar"></span>
+                <span class="nav-icon-bar"></span>
+                <span class="nav-icon-bar"></span>
+            </button>
+
+            <div class="nav-links" id="primaryNavLinks">
+                <a href="#generator" class="nav-link">Generator</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#guide" class="nav-link">Excel Guide</a>
+                <a href="#collaboration" class="nav-link">Work With Me</a>
+                <a href="#contact" class="nav-link">Contact</a>
+                <a href="{{ url_for('download_sample') }}" class="nav-btn-template">
+                    <span>📥 Sample Template</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    {% if show_sponsor_banner %}
+    <!-- Sponsored / Featured Partner Area (Enabled via SHOW_SPONSOR_BANNER env) -->
+    <aside class="sponsor-banner" aria-label="Sponsored Content">
+        <div class="sponsor-inner">
+            <span class="sponsor-badge">FEATURED PARTNER</span>
+            <span class="sponsor-text">Looking for institutional campus management or dedicated cloud hosting? Explore custom academic partnerships.</span>
+            <a href="#contact" class="sponsor-link">Learn More →</a>
+        </div>
+    </aside>
+    {% endif %}
+
+    <div class="page-container">
+
+        <!-- Hero Section -->
+        <section class="hero-section" id="hero">
+            <div class="hero-content">
+                <span class="eyebrow-badge">⚡ POWERED BY GOOGLE OR-TOOLS CP-SAT</span>
+                <h1>College Timetable & Faculty Schedule System</h1>
+                <p class="hero-desc">
+                    Generate 100% conflict-free class timetables and individual faculty workload schedules in seconds. Handles multi-period labs, shared branch courses, and working day constraints with instant Excel and PDF export.
+                </p>
+                <div class="hero-cta-group">
+                    <a href="#generator" class="btn-hero-primary">
+                        <span>📊 Upload College Excel</span>
+                    </a>
+                    <form method="POST" style="display: inline-block;">
+                        <input type="hidden" name="action" value="demo">
+                        <button type="submit" class="btn-hero-secondary">
+                            <span>🚀 Try with Demo Data</span>
+                        </button>
+                    </form>
+                    <a href="{{ url_for('download_sample') }}" class="btn-hero-outline">
+                        <span>⬇ Download Template (.xlsx)</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Highlights Bar -->
+            <div class="hero-highlights-bar">
+                <div class="highlight-item">
+                    <span class="highlight-icon" aria-hidden="true">🛡️</span>
+                    <div>
+                        <strong>100% Clash-Free</strong>
+                        <small>Strict mathematical constraints</small>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <span class="highlight-icon" aria-hidden="true">🔬</span>
+                    <div>
+                        <strong>Multi-Period Labs</strong>
+                        <small>2 or 3-period block allocation</small>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <span class="highlight-icon" aria-hidden="true">👨‍🏫</span>
+                    <div>
+                        <strong>Individual Faculty Sheets</strong>
+                        <small>Weekly workload distribution</small>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <span class="highlight-icon" aria-hidden="true">📥</span>
+                    <div>
+                        <strong>Excel & PDF Ready</strong>
+                        <small>One-click professional export</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Excel Upload Card -->
+        <section class="upload-card" id="generator" aria-labelledby="uploadHeading">
+            <div class="card-section-header">
+                <h2 id="uploadHeading">Upload Academic Data Workbook</h2>
+                <p>Upload your college schedule Excel file with <strong>Classes</strong>, <strong>Subjects</strong>, <strong>Teachers</strong>, and <strong>Settings</strong> sheets.</p>
+            </div>
+
+            {% with flashed_messages = get_flashed_messages(with_categories=true) %}
+                {% if flashed_messages %}
+                    {% for category, msg in flashed_messages %}
+                        <div class="alert {{ 'alert-success' if category == 'success' else 'alert-error' }}" role="alert">
+                            <div class="alert-icon">{{ '✅' if category == 'success' else '⚠️' }}</div>
+                            <div class="alert-text">{{ msg }}</div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% if message %}
+                <div class="alert {{ 'alert-success' if success else 'alert-error' }}" role="alert">
+                    <div class="alert-icon">{{ '✅' if success else '⚠️' }}</div>
+                    <div class="alert-text" style="white-space: pre-line;">{{ message }}</div>
+                </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" class="upload-form" id="timetableUploadForm">
+                <input type="hidden" name="action" value="upload">
+                <div class="file-dropzone" id="fileDropzone" onclick="document.getElementById('file').click()" role="button" tabindex="0" aria-label="Dropzone for Excel timetable upload">
+                    <div class="dropzone-icon" aria-hidden="true">📊</div>
+                    <h3>Select College Excel File</h3>
+                    <p class="dropzone-desc">Drag and drop your <strong>.xlsx</strong> file here, or click to browse (Max 4MB)</p>
+                    <input type="file" id="file" name="file" accept=".xlsx" required onchange="updateFileName(this)">
+                    <div id="fileSelectedName" class="file-chosen-text"></div>
+                </div>
+
+                <div class="form-action-row">
+                    <button type="submit" class="btn-submit" id="btnSubmitGenerate">
+                        <span>⚡ Generate Complete Timetable</span>
+                    </button>
+                </div>
+            </form>
+
+            <div class="upload-footer-links">
+                <form method="POST" style="display: inline-block;">
+                    <input type="hidden" name="action" value="demo">
+                    <button type="submit" class="demo-trigger-link">
+                        🚀 Don't have a file ready? Click here to test with pre-built Sample Data
+                    </button>
+                </form>
+                <span class="sep-bullet">•</span>
+                <a class="sample-link" href="{{ url_for('download_sample') }}">
+                    ⬇ Download the Official Excel Template
+                </a>
+            </div>
+        </section>
+
+        {% if timetable %}
+        <!-- Results & Management Section -->
+        <section class="results-section" id="resultsSection" aria-labelledby="resultsHeading">
+            <h2 id="resultsHeading" class="visually-hidden">Generated Timetable Results</h2>
+            <!-- Statistics Bar -->
+            <div class="stats-overview-bar">
+                <div class="stat-card">
+                    <span class="stat-num" id="statTotalSessions">{{ timetable|length }}</span>
+                    <span class="stat-lbl">Scheduled Sessions</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-num" id="statTotalClasses">{{ classes|length }}</span>
+                    <span class="stat-lbl">Academic Classes</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-num" id="statTotalTeachers">{{ teachers|length }}</span>
+                    <span class="stat-lbl">Faculty Members</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-num">{{ days|length }}</span>
+                    <span class="stat-lbl">Working Days</span>
+                </div>
+            </div>
+
+            <!-- Master Toolbar -->
+            <div class="results-toolbar">
+                <!-- View Switcher -->
+                <div class="view-switch-group" role="tablist">
+                    <button type="button" class="view-switch-btn active" id="btnViewClass" role="tab" aria-selected="true" aria-controls="panelClassView">
+                        🏫 Class Timetables
+                    </button>
+                    <button type="button" class="view-switch-btn" id="btnViewTeacher" role="tab" aria-selected="false" aria-controls="panelTeacherView">
+                        👨‍🏫 Faculty Timetables
+                    </button>
+                </div>
+
+                <!-- Action Controls -->
+                <div class="toolbar-actions">
+                    <span id="editStatusBadge" class="badge-edit-mode" style="display: none;">● Edit Mode Active</span>
+                    
+                    <button type="button" class="btn-tool btn-edit" id="btnToggleEdit" title="Toggle interactive editing mode">
+                        <span>✏️ Edit Timetable</span>
+                    </button>
+
+                    <button type="button" class="btn-tool btn-reset" id="btnResetTimetable" title="Reset all changes back to generated timetable">
+                        <span>↺ Reset</span>
+                    </button>
+
+                    <!-- Export Dropdown -->
+                    <div class="export-dropdown-wrapper">
+                        <button type="button" class="btn-tool btn-export" id="btnExportMenu" aria-expanded="false" aria-haspopup="true">
+                            <span>📥 Download Options ▼</span>
+                        </button>
+                        <div class="export-menu-dropdown" id="exportDropdownMenu">
+                            <button type="button" class="export-item" id="btnDownloadMain">
+                                <span class="exp-icon" aria-hidden="true">📊</span>
+                                <div>
+                                    <strong>Download Main Timetable (Excel)</strong>
+                                    <small>Master summary + all class sheets</small>
+                                </div>
+                            </button>
+                            <button type="button" class="export-item" id="btnDownloadAllTeachers">
+                                <span class="exp-icon" aria-hidden="true">👨‍🏫</span>
+                                <div>
+                                    <strong>Download All Faculty Schedules (Excel)</strong>
+                                    <small>Workload report + sheet for every teacher</small>
+                                </div>
+                            </button>
+                            <button type="button" class="export-item" id="btnDownloadCurrent">
+                                <span class="exp-icon" aria-hidden="true">📄</span>
+                                <div>
+                                    <strong>Download Current View (Excel)</strong>
+                                    <small>Active class or active teacher</small>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-tool btn-print" onclick="window.print()" title="Print landscape timetable or save as PDF">
+                        <span>🖨️ Export PDF / Print</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Horizontal Scroll Cue -->
+            <div class="mobile-scroll-hint" aria-hidden="true">
+                <span>👉 Swipe horizontally to view all weekdays and periods</span>
+            </div>
+
+            <!-- Panel: Class Timetables -->
+            <div id="panelClassView" class="timetable-panel active" role="tabpanel" aria-labelledby="btnViewClass">
+                <div class="panel-selector-bar">
+                    <div class="selector-field">
+                        <label for="classSelect"><strong>Select Academic Class:</strong></label>
+                        <select id="classSelect" class="styled-select"></select>
+                    </div>
+                </div>
+
+                <!-- Class Content Rendered Dynamically -->
+                <div id="classTimetableContent"></div>
+            </div>
+
+            <!-- Panel: Teacher Individual Timetables -->
+            <div id="panelTeacherView" class="timetable-panel" style="display: none;" role="tabpanel" aria-labelledby="btnViewTeacher">
+                <div class="panel-selector-bar">
+                    <div class="selector-field">
+                        <label for="teacherSelect"><strong>Select Faculty / Teacher:</strong></label>
+                        <select id="teacherSelect" class="styled-select"></select>
+                    </div>
+                </div>
+
+                <!-- Teacher Content Rendered Dynamically -->
+                <div id="teacherTimetableContent"></div>
+            </div>
+
+        </section>
+        {% endif %}
+
+        <!-- How It Works Section -->
+        <section class="info-section" id="how-it-works" aria-labelledby="hiwHeading">
+            <div class="section-title-wrap">
+                <span class="eyebrow-badge">THE SCHEDULING ENGINE</span>
+                <h2 id="hiwHeading">How TimelyAI Works</h2>
+                <p>Modern colleges have hundreds of interrelated scheduling constraints. TimelyAI uses Google OR-Tools CP-SAT (Constraint Programming) to solve the exact formulation mathematically without heuristics or trial-and-error.</p>
+            </div>
+
+            <div class="workflow-steps-grid">
+                <article class="step-card">
+                    <div class="step-badge">1</div>
+                    <h3>Structure Input Data</h3>
+                    <p>Enter your classes, course subjects, weekly periods, faculty names, and institutional timings into the standardized Excel template.</p>
+                </article>
+
+                <article class="step-card">
+                    <div class="step-badge">2</div>
+                    <h3>Rigorous Feasibility Check</h3>
+                    <p>Before launching the solver, the system checks capacity: ensuring teacher loads don't exceed weekly limits and room/period slots are mathematically sufficient.</p>
+                </article>
+
+                <article class="step-card">
+                    <div class="step-badge">3</div>
+                    <h3>Constraint Optimization</h3>
+                    <p>CP-SAT enforces hard rules (no faculty or class clashes) while optimizing soft objectives: balanced daily study loads and compact consecutive lectures.</p>
+                </article>
+
+                <article class="step-card">
+                    <div class="step-badge">4</div>
+                    <h3>Interactive Edit & Export</h3>
+                    <p>Review the schedule in the browser, adjust individual sessions with real-time conflict detection, and download formatted Excel sheets or print-ready PDFs.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- Supported Features Grid -->
+        <section class="features-section" id="features" aria-labelledby="featHeading">
+            <div class="section-title-wrap">
+                <span class="eyebrow-badge">CAPABILITIES</span>
+                <h2 id="featHeading">Supported Academic Features</h2>
+                <p>Designed specifically for higher education institutions, engineering colleges, polytechnics, and schools.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feat-icon">🚫</div>
+                    <h3>Zero Double-Bookings</h3>
+                    <p>No faculty member or student class will ever be scheduled in two places simultaneously. Clash prevention is enforced at the constraint level.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feat-icon">🔬</div>
+                    <h3>Multi-Period Continuous Labs</h3>
+                    <p>Specify 2-period practicals or 3-period workshops. TimelyAI schedules them continuously within the same day without lunch break interruptions.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feat-icon">🔗</div>
+                    <h3>Shared Branch Lectures</h3>
+                    <p>Merge multiple branches (e.g. CSE Section A and ECE Section A taking Common Mathematics) into one joint period under a single faculty member.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feat-icon">⚖️</div>
+                    <h3>Balanced Weekly Load</h3>
+                    <p>Spreads subject lectures evenly across working days so students don't face three lectures of the same subject on the same day.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feat-icon">✏️</div>
+                    <h3>Interactive Manual Fine-Tuning</h3>
+                    <p>Click any session in edit mode to change time, room, or faculty. Immediate warning badges alert you if a proposed shift causes a conflict.</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feat-icon">⚡</div>
+                    <h3>Serverless Cloud Execution</h3>
+                    <p>Engineered for high performance with in-memory streaming, sub-10s solving limit, and zero local filesystem dependencies for cloud deployment.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Excel Input Guide Section -->
+        <section class="guide-section" id="guide" aria-labelledby="guideHeading">
+            <div class="section-title-wrap">
+                <span class="eyebrow-badge">DOCUMENTATION</span>
+                <h2 id="guideHeading">Excel Input Structure Guide</h2>
+                <p>To ensure smooth validation and schedule generation, your workbook must contain the following sheets:</p>
+            </div>
+
+            <div class="sheets-guide-container">
+                <div class="sheet-spec-card">
+                    <div class="sheet-spec-header">
+                        <span class="sheet-pill">Sheet 1</span>
+                        <h3>Classes</h3>
+                    </div>
+                    <p class="sheet-desc">Defines every academic cohort in your institution.</p>
+                    <div class="table-spec-wrapper">
+                        <table class="spec-table">
+                            <thead>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>Description & Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>course_name</code></td>
+                                    <td>Text</td>
+                                    <td>Academic degree or program (e.g. <code>B.Tech</code>, <code>BCA</code>)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>branch_name</code></td>
+                                    <td>Text</td>
+                                    <td>Specialization or department (e.g. <code>CSE</code>, <code>Mechanical</code>)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>semester</code></td>
+                                    <td>Number/Text</td>
+                                    <td>Semester or term identifier (e.g. <code>4</code>, <code>6</code>)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>section</code></td>
+                                    <td>Text</td>
+                                    <td>Section letter or division (e.g. <code>A</code>, <code>B</code>)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="sheet-spec-card">
+                    <div class="sheet-spec-header">
+                        <span class="sheet-pill">Sheet 2</span>
+                        <h3>Subjects</h3>
+                    </div>
+                    <p class="sheet-desc">Maps subjects to classes with required period counts.</p>
+                    <div class="table-spec-wrapper">
+                        <table class="spec-table">
+                            <thead>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>Description & Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>class_id</code></td>
+                                    <td>Text</td>
+                                    <td>Compound class ID, e.g. <code>B.Tech_CSE_Sem4_A</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>subject_name</code></td>
+                                    <td>Text</td>
+                                    <td>Course name (e.g. <code>Operating Systems</code>, <code>DBMS Lab</code>)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>weekly_periods</code></td>
+                                    <td>Number</td>
+                                    <td>Total periods per week required (e.g. <code>4</code>)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>periods_per_session</code></td>
+                                    <td>Number</td>
+                                    <td>Continuous slot length: <code>1</code> for lecture, <code>2</code> for lab</td>
+                                </tr>
+                                <tr>
+                                    <td><code>subject_type</code></td>
+                                    <td>Text</td>
+                                    <td><code>Theory</code> or <code>Lab</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="sheet-spec-card">
+                    <div class="sheet-spec-header">
+                        <span class="sheet-pill">Sheet 3</span>
+                        <h3>Teachers</h3>
+                    </div>
+                    <p class="sheet-desc">Faculty roster and their subject qualification mapping.</p>
+                    <div class="table-spec-wrapper">
+                        <table class="spec-table">
+                            <thead>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>Description & Example</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>teacher_name</code></td>
+                                    <td>Text</td>
+                                    <td>Full name or title (e.g. <code>Dr. Sharma</code>, <code>Prof. Patel</code>)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>subjects</code></td>
+                                    <td>Text</td>
+                                    <td>Comma-separated list of subjects this teacher can teach</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="sheet-spec-card">
+                    <div class="sheet-spec-header">
+                        <span class="sheet-pill">Sheet 4</span>
+                        <h3>Settings</h3>
+                    </div>
+                    <p class="sheet-desc">Key-value configurations for working hours, days, and breaks.</p>
+                    <div class="table-spec-wrapper">
+                        <table class="spec-table">
+                            <thead>
+                                <tr>
+                                    <th>Setting Key</th>
+                                    <th>Example Value</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>working_days</code></td>
+                                    <td><code>Monday, Tuesday, Wednesday, Thursday, Friday</code></td>
+                                    <td>Comma-separated list of active academic days</td>
+                                </tr>
+                                <tr>
+                                    <td><code>periods_per_day</code></td>
+                                    <td><code>7</code></td>
+                                    <td>Number of teaching periods per day</td>
+                                </tr>
+                                <tr>
+                                    <td><code>period_start_time</code></td>
+                                    <td><code>09:00</code></td>
+                                    <td>Institution opening time (HH:MM)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>period_duration</code></td>
+                                    <td><code>50</code></td>
+                                    <td>Duration of each period in minutes</td>
+                                </tr>
+                                <tr>
+                                    <td><code>lunch_break_after</code></td>
+                                    <td><code>2</code></td>
+                                    <td>Period number after which lunch break occurs</td>
+                                </tr>
+                                <tr>
+                                    <td><code>lunch_duration</code></td>
+                                    <td><code>50</code></td>
+                                    <td>Lunch break duration in minutes</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide-download-cta">
+                <a href="{{ url_for('download_sample') }}" class="btn-submit" style="display: inline-flex; width: auto; padding: 14px 28px;">
+                    <span>📥 Download Pre-Filled Reference Template (.xlsx)</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Work With Me / Freelance Collaboration Section -->
+        <section class="collaboration-section" id="collaboration" aria-labelledby="collabHeading">
+            <div class="collab-container">
+                <div class="collab-profile">
+                    <div class="profile-avatar-badge" aria-hidden="true">👨‍💻</div>
+                    <span class="eyebrow-badge">AUTHOR & CONSULTING</span>
+                    <h2 id="collabHeading">Work With Me</h2>
+                    <p class="collab-intro">
+                        Hi, I'm <strong>{{ author_name }}</strong>. I specialize in constraint optimization, operations research, and full-stack software development for education and enterprise.
+                    </p>
+                    <div class="collab-credit-box">
+                        <strong>{{ author_credit }}</strong>
+                    </div>
+
+                    <div class="social-links-row">
+                        {% if github_url %}
+                        <a href="{{ github_url }}" target="_blank" rel="noopener noreferrer" class="social-btn">
+                            <span>GitHub Profile ↗</span>
+                        </a>
+                        {% endif %}
+                        {% if linkedin_url %}
+                        <a href="{{ linkedin_url }}" target="_blank" rel="noopener noreferrer" class="social-btn">
+                            <span>LinkedIn Profile ↗</span>
+                        </a>
+                        {% endif %}
+                        {% if portfolio_url and portfolio_url != github_url %}
+                        <a href="{{ portfolio_url }}" target="_blank" rel="noopener noreferrer" class="social-btn">
+                            <span>Portfolio ↗</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="collab-services-card">
+                    <h3>Custom Development & Consulting</h3>
+                    <p>Have specific university rules, classroom constraints, or need a customized timetabling engine integrated into your ERP?</p>
+                    
+                    <ul class="collab-service-list">
+                        <li>
+                            <strong>Custom Timetable & Scheduling Engines:</strong> Specific classroom capacity, professor preferred days, elective groupings, and multi-campus rules.
+                        </li>
+                        <li>
+                            <strong>Full-Stack Educational Portals:</strong> Secure web platforms with role-based access for Deans, HODs, Faculty, and Students.
+                        </li>
+                        <li>
+                            <strong>Operations Research & Combinatorial Optimization:</strong> OR-Tools, Mixed-Integer Programming, and vehicle routing.
+                        </li>
+                        <li>
+                            <strong>Cloud Deployment & API Architecture:</strong> Serverless architectures, AWS, Vercel, and enterprise Python integrations.
+                        </li>
+                    </ul>
+
+                    <a href="#contact" class="btn-hero-primary" style="margin-top: 15px; width: 100%; text-align: center;">
+                        <span>💼 Inquire About a Project or Freelance Work</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact-section" id="contact" aria-labelledby="contactHeading">
+            <div class="section-title-wrap">
+                <span class="eyebrow-badge">COLLABORATION & INQUIRIES</span>
+                <h2 id="contactHeading">Get In Touch</h2>
+                <p>Have questions about timetable generation, feature requests, or want to hire Chirag for custom algorithm development? Send a message below.</p>
+            </div>
+
+            <div class="contact-layout">
+                <div class="contact-info-panel">
+                    <h3>Direct Contact</h3>
+                    <p>Feel free to reach out directly via email for project inquiries, freelance consulting, or technical feedback.</p>
+                    
+                    <div class="contact-detail-item">
+                        <span class="detail-icon" aria-hidden="true">✉️</span>
+                        <div>
+                            <strong>Email Address</strong>
+                            <a href="mailto:{{ contact_email }}" class="contact-email-link">{{ contact_email }}</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-detail-item">
+                        <span class="detail-icon" aria-hidden="true">🕒</span>
+                        <div>
+                            <strong>Response Time</strong>
+                            <span>Typically within 24–48 business hours</span>
+                        </div>
+                    </div>
+
+                    <div class="contact-detail-item">
+                        <span class="detail-icon" aria-hidden="true">📍</span>
+                        <div>
+                            <strong>Availability</strong>
+                            <span>Open for freelance contracts & consulting</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form-panel">
+                    <form action="{{ url_for('contact') }}" method="POST" class="contact-form" id="contactForm">
+                        <!-- Anti-spam Honeypot (Visually Hidden) -->
+                        <div class="visually-hidden" aria-hidden="true">
+                            <label for="company_website">Do not fill this field</label>
+                            <input type="text" id="company_website" name="company_website" tabindex="-1" autocomplete="off">
+                        </div>
+                        
+                        <!-- Anti-spam Form Timestamp -->
+                        <input type="hidden" name="form_ts" value="{{ form_timestamp }}">
+
+                        <div class="form-group">
+                            <label for="contactName">Your Full Name <span class="req-star">*</span></label>
+                            <input type="text" id="contactName" name="name" required minlength="2" maxlength="100" autocomplete="name" placeholder="Prof. Jane Doe" class="styled-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactEmail">Work or Institutional Email <span class="req-star">*</span></label>
+                            <input type="email" id="contactEmail" name="email" required autocomplete="email" placeholder="jane@university.edu" class="styled-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactSubject">Inquiry Topic</label>
+                            <select id="contactSubject" name="subject" class="styled-select">
+                                <option value="Custom Timetable Project">Custom Timetable Project / ERP Integration</option>
+                                <option value="Freelance Development">Freelance Software Development</option>
+                                <option value="Feature Request">Feature Request / Feedback</option>
+                                <option value="Technical Question">Technical Question</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactMessage">Message Details <span class="req-star">*</span></label>
+                            <textarea id="contactMessage" name="message" rows="5" required minlength="10" maxlength="4000" placeholder="Please describe your requirements, institution size, or questions..." class="styled-textarea"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-submit" id="btnSubmitContact">
+                            <span>📨 Send Message</span>
+                        </button>
+                        <div id="contactFormStatus" class="form-status-msg" style="display: none;"></div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Edit Session Modal Dialog -->
+    <dialog id="sessionModal" class="modal-dialog" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">✏️ Edit Scheduled Session</h3>
+                <button type="button" class="modal-close-btn" onclick="document.getElementById('sessionModal').close()" aria-label="Close dialog">✕</button>
+            </div>
+
+            <div id="modalConflictWarning" class="modal-conflict-box" style="display: none;"></div>
+
+            <div class="modal-body">
+                <div class="modal-grid-2">
+                    <div class="form-group">
+                        <label for="modalClass">Class / Section</label>
+                        <select id="modalClass" class="styled-select modal-input"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalTeacher">Teacher / Faculty</label>
+                        <select id="modalTeacher" class="styled-select modal-input"></select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="modalSubject">Subject Name</label>
+                    <select id="modalSubject" class="styled-select modal-input"></select>
+                </div>
+
+                <div class="modal-grid-3">
+                    <div class="form-group">
+                        <label for="modalDay">Day</label>
+                        <select id="modalDay" class="styled-select modal-input"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalPeriod">Start Period</label>
+                        <select id="modalPeriod" class="styled-select modal-input"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalLength">Duration</label>
+                        <select id="modalLength" class="styled-select modal-input">
+                            <option value="1">1 Period (Standard Lecture)</option>
+                            <option value="2">2 Periods (Lab / Practical)</option>
+                            <option value="3">3 Periods (Workshop / Project)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-modal-secondary" id="btnCancelModal">Cancel</button>
+                <button type="button" class="btn-modal-danger" id="btnDeleteModal" style="display: none;">🗑️ Delete Session</button>
+                <button type="button" class="btn-modal-primary" id="btnSaveModal">💾 Save Session</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Toast Notification -->
+    <div id="timetableToast" class="timetable-toast" role="status" aria-live="polite"></div>
+
+    <!-- Responsive Site Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-brand-col">
+                <div class="logo">
+                    <span class="logo-icon" aria-hidden="true">📅</span>
+                    <span>Timely<span style="color: var(--primary);">AI</span></span>
+                </div>
+                <p class="footer-tagline">
+                    An open, algorithm-driven timetable scheduling system built for colleges and academic institutions.
+                </p>
+                <p class="footer-credit">
+                    <strong>{{ author_credit }}</strong>
+                </p>
+            </div>
+
+            <div class="footer-nav-col">
+                <h4>Navigation</h4>
+                <ul>
+                    <li><a href="#generator">Timetable Generator</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#guide">Excel Input Guide</a></li>
+                    <li><a href="{{ url_for('download_sample') }}">Download Template</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-contact-col">
+                <h4>Connect & Inquiries</h4>
+                <ul>
+                    <li><a href="mailto:{{ contact_email }}">✉️ {{ contact_email }}</a></li>
+                    {% if github_url %}
+                    <li><a href="{{ github_url }}" target="_blank" rel="noopener noreferrer">GitHub Profile ↗</a></li>
+                    {% endif %}
+                    {% if linkedin_url %}
+                    <li><a href="{{ linkedin_url }}" target="_blank" rel="noopener noreferrer">LinkedIn Profile ↗</a></li>
+                    {% endif %}
+                    <li><a href="#collaboration">Work With Me</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom-bar">
+            <p>&copy; {{ current_year }} TimelyAI. {{ author_credit }} All rights reserved.</p>
+            <p class="footer-disclaimer">Built for academic institutions worldwide. No affiliation with commercial timetabling suites.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='timetable.js') }}"></script>
+    <script>
+        function updateFileName(input) {
+            const display = document.getElementById('fileSelectedName');
+            if (input.files && input.files.length > 0) {
+                display.innerText = 'Selected: ' + input.files[0].name;
+            } else {
+                display.innerText = '';
+            }
+        }
+
+        // Mobile Navigation Toggle
+        const mobileToggle = document.getElementById('mobileNavToggle');
+        const navLinks = document.getElementById('primaryNavLinks');
+        if (mobileToggle && navLinks) {
+            mobileToggle.addEventListener('click', function() {
+                const isOpen = navLinks.classList.toggle('nav-open');
+                mobileToggle.setAttribute('aria-expanded', String(isOpen));
+            });
+            navLinks.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.classList.remove('nav-open');
+                    mobileToggle.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+
+        // Dropdown toggle
+        const exportBtn = document.getElementById('btnExportMenu');
+        const exportMenu = document.getElementById('exportDropdownMenu');
+        if (exportBtn && exportMenu) {
+            exportBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isShown = exportMenu.classList.toggle('show');
+                exportBtn.setAttribute('aria-expanded', String(isShown));
+            });
+            document.addEventListener('click', function() {
+                exportMenu.classList.remove('show');
+                exportBtn.setAttribute('aria-expanded', 'false');
+            });
+        }
+
+        // AJAX contact form submission
+        const contactForm = document.getElementById('contactForm');
+        const contactStatus = document.getElementById('contactFormStatus');
+        if (contactForm && contactStatus) {
+            contactForm.addEventListener('submit', function(e) {
+                // If fetch is available, perform client-side AJAX with fallback
+                if (window.fetch) {
+                    e.preventDefault();
+                    const submitBtn = document.getElementById('btnSubmitContact');
+                    const originalBtnText = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span>⏳ Sending...</span>';
+
+                    const formData = new FormData(contactForm);
+                    fetch('{{ url_for("contact") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(res => res.json().then(data => ({ status: res.status, data })))
+                    .then(({ status, data }) => {
+                        contactStatus.style.display = 'block';
+                        if (status === 200 && data.success) {
+                            contactStatus.className = 'form-status-msg status-success';
+                            contactStatus.innerHTML = `✅ ${data.message} <br><a href="mailto:{{ contact_email }}?subject=Follow-up&body=Hi Chirag," style="text-decoration: underline; font-weight: bold;">Click here to also send via your email client</a>`;
+                            contactForm.reset();
+                        } else {
+                            contactStatus.className = 'form-status-msg status-error';
+                            contactStatus.innerHTML = `⚠️ ${data.error || 'Submission failed. Please email {{ contact_email }} directly.'}`;
+                        }
+                    })
+                    .catch(err => {
+                        contactStatus.style.display = 'block';
+                        contactStatus.className = 'form-status-msg status-error';
+                        contactStatus.innerHTML = `⚠️ Submission error. Please email directly at <a href="mailto:{{ contact_email }}">{{ contact_email }}</a>.`;
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    });
+                }
+            });
+        }
+
+        {% if timetable %}
+        // Initialize Timetable Application with backend data
+        document.addEventListener('DOMContentLoaded', function () {
+            window.initTimetableApp({
+                timetable: {{ timetable|tojson }},
+                days: {{ days|tojson }},
+                rows: {{ rows|tojson }},
+                periods: {{ periods|tojson }},
+                classes: {{ classes|tojson }},
+                teachers: {{ teachers|tojson }},
+                all_subjects: {{ all_subjects|tojson }}
+            });
+        });
+        {% endif %}
+    </script>
+</body>
+</html>

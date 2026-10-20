@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error (500) | TimelyAI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar" aria-label="Main Navigation">
+        <a href="{{ url_for('index') }}" class="logo">
+            <span class="logo-icon" aria-hidden="true">📅</span>
+            <span>Timely<span style="color: var(--primary);">AI</span></span>
+        </a>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('download_sample') }}">Download Template</a>
+        </div>
+    </nav>
+
+    <main class="page-container" style="text-align: center; padding: 80px 20px;">
+        <span class="eyebrow-badge" style="font-size: 14px; background: #fee2e2; color: #dc2626;">SYSTEM NOTICE</span>
+        <h1 style="font-size: 36px; margin: 15px 0; color: var(--navy);">Unexpected Solver or Server Condition</h1>
+        <p style="color: var(--muted); max-width: 550px; margin: 0 auto 30px; font-size: 16px;">
+            An unexpected error occurred while processing your request. Please ensure your Excel file matches the required template structure or contact support if the issue persists.
+        </p>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url_for('index') }}" class="btn-submit" style="display: inline-block; max-width: 250px; text-decoration: none;">
+                ← Try Again
+            </a>
+            <a href="{{ url_for('download_sample') }}" class="btn-submit" style="display: inline-block; max-width: 250px; text-decoration: none; background: #475569;">
+                📥 Download Reference Template
+            </a>
+        </div>
+    </main>
+</body>
+</html>

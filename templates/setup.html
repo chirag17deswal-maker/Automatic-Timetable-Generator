@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Academic Structure | TimelyAI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="setup-page">
+
+        <!-- Header -->
+        <header class="setup-header">
+            <div>
+                <span class="eyebrow">COLLEGE SETUP</span>
+                <h1>Academic Structure</h1>
+                <p>
+                    Define your courses, branches, semesters and sections.
+                </p>
+            </div>
+
+            <a href="{{ url_for('index') }}" class="back-btn">
+                ← Dashboard
+            </a>
+        </header>
+
+
+        <!-- Progress -->
+        <div class="setup-progress">
+
+            <div class="progress-step active">
+                <span>1</span>
+                <div>
+                    <strong>Academic Structure</strong>
+                    <small>Courses & sections</small>
+                </div>
+            </div>
+
+            <div class="progress-line"></div>
+
+            <div class="progress-step">
+                <span>2</span>
+                <div>
+                    <strong>Subjects</strong>
+                    <small>Subjects & workload</small>
+                </div>
+            </div>
+
+            <div class="progress-line"></div>
+
+            <div class="progress-step">
+                <span>3</span>
+                <div>
+                    <strong>Teachers</strong>
+                    <small>Faculty mapping</small>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Main Card -->
+        <main class="setup-card">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Courses & Programs</h2>
+                    <p>
+                        Add all the courses offered by your college.
+                    </p>
+                </div>
+
+                <button type="button" class="primary-btn" id="addCourseBtn">
+                    + Add Course
+                </button>
+            </div>
+
+
+            <!-- Courses will appear here -->
+            <div id="coursesContainer">
+
+                <!-- JavaScript will create courses here -->
+
+            </div>
+
+
+            <!-- Bottom Actions -->
+            <div class="setup-actions">
+
+                <a href="{{ url_for('index') }}" class="secondary-btn">
+                    Cancel
+                </a>
+
+                <button type="button" class="primary-btn" id="continueBtn">
+                    Save & Continue →
+                </button>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

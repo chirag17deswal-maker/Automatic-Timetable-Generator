@@ -1,0 +1,17 @@
+# Ignore unnecessary development files to optimize deployment bundle size
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+uploads/*
+!uploads/.gitkeep
+.git/
+.github/
+.vscode/
+.idea/
+.DS_Store
+*.log
+scratch/
+tools/create_sample_excel.py
