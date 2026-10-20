@@ -67,7 +67,7 @@ TimelyAI has been audited and engineered specifically for serverless Python exec
 
 3. **Deploy from project directory:**
    ```bash
-   cd c:\Users\chira\Downloads\timetable-generator-updated
+   cd Automatic-Timetable-Generator
    vercel --prod
    ```
    Follow the interactive prompts:
